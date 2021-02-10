@@ -28,6 +28,9 @@ class productos {
     public int getCantidad(){
             return cantidad;       //metodo para poner la cantidad de productos a llevar
     }
+    public void setCantidad(int cantidad){
+		this.cantidad=cantidad;
+	}
 }
     /**
      * @param args the command line arguments
@@ -42,6 +45,8 @@ class Program extends JFrame{
         productsList = new ArrayList(); // agrego mi instancia que hace referencia al arrayList
 
         JLabel deleteFieldLabel = new JLabel("Numero de producto a eliminar");
+        JLabel deleteFieldCantidadLabel = new JLabel("Cantidad");
+        final JTextField deleteFieldCantidad = new JTextField();
         final JTextField deleteField = new JTextField();
 
         JButton addProduct = new JButton("Añadir");
@@ -60,8 +65,10 @@ class Program extends JFrame{
         title.setFont(new java.awt.Font("Comic Sans", 2, 25));  // le doy formato al titulo, poniendo sus coordenadas
         products.setBounds(0, 20, 190, 80);                     // su tipo de letra y tamaño
 
-        deleteField.setBounds(440, 360, 120, 30);
+        deleteField.setBounds(440, 360, 30, 30);
         deleteFieldLabel.setBounds(200, 360, 280, 30);
+        deleteFieldCantidadLabel.setBounds(490, 360, 80, 30);
+        deleteFieldCantidad.setBounds(570, 360, 30, 30);
 
         nombreLabel.setBounds(200, 290, 120, 30);
         precioLabel.setBounds(340, 290, 120, 30);       // en este bloque de codigo le doy formato a los label y botones
@@ -77,6 +84,8 @@ class Program extends JFrame{
 
         this.add(deleteFieldLabel);
         this.add(deleteField);
+        this.add(deleteFieldCantidad);
+        this.add(deleteFieldCantidadLabel);
 
         this.add(title);
         this.add(products);
@@ -116,29 +125,38 @@ class Program extends JFrame{
                 String out = "";        // el %s es para string, %f para floats
                 for(productos i : productsList){        
                         total+= i.getTotal();
-                        out += String.format("%d.- %s(%d) = %f\n", cont, i.getNombre(), i.getCantidad(), i.getTotal());
+                        salida += String.format("%d.- %s(%d) = %f\n", cont, i.getNombre(), i.getCantidad(), i.getTotal());
                         // con los % serán reeemplazados por los valores que estan a continuación en color blanco 
                         cont++;
                 }
-                JOptionPane.showMessageDialog(null, String.format("%s\n Total = %f", out, total)); 
+                JOptionPane.showMessageDialog(null, String.format("%s\n Total = %f", salida, total)); 
                 // muestro el total de los productos cambiando el valor por lo que vale mi variable total
                 }
             });
         deleteProduct.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                int selection=Integer.parseInt(deleteField.getText());  // eliminara el texto que esta en selection de acuerdo al 
-                selection-=1;                                           // que indique el usuario, empezando la selection -1
-                productsList.remove(selection); // eliminara el elemento de acuerdo al numero seleccionado 
+                int selection=Integer.parseInt(deleteField.getText());
+                int num=Integer.parseInt(deleteFieldCantidad.getText());    // hago las conversiones a int con el parseo
+                selection-=1;
+                if(num<productsList.get(selection).getCantidad() && num>0){
+                        productsList.get(selection).setCantidad(productsList.get(selection).getCantidad()-num);
+                }       // condicion para que valide si la cantidad a eliminar esta disponible y si pone un numero menor 
+                else{   // a la cantidad le va a restar a la cantidad total
+                        productsList.remove(selection);    // si es mayor al num de productos, va a eliminar por completo el producto
+                }
                 cont=1;
                 salida = "<html><body><p>";
                 for(productos i : productsList){
-                        salida += String.format("%d.- %s<br>", cont, i.getNombre()); // imprimo la lista de los productos que lleva
-                        cont++;                                                     // en el carrito por asi decirlo
+                        salida += String.format("%d.- %s<br>", cont, i.getNombre()); // muestro el nombre de los productos cambiando el valor 
+                                        //por lo que vale mi variable nombre y le agrego tambien al inicio mi variable cont
+                                        // para que vaya incrementando el numero del indice de los productos 
+                        cont++;
                 }
                 products.setText(salida);
                 deleteField.setText("");
-            }
-            });
+                deleteFieldCantidad.setText("");
+                   }
+		});
             this.setResizable(false);
             this.setLayout(null);
             this.setDefaultCloseOperation(3);   // agrego formato a la ventana, como tamaño, que sea estatica y tenga un titulo
